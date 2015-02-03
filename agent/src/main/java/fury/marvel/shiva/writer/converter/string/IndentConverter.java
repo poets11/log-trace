@@ -9,6 +9,6 @@ import java.io.Writer;
  * Created by poets11 on 15. 2. 2..
  */
 public interface IndentConverter {
-    public static String DEFAULT_INDENT_CHAR = "    ";
+    public static String DEFAULT_INDENT_CHAR = "|   ";
     void convert(StackInfo stackInfo, Writer writer, int depth) throws IOException;
 }

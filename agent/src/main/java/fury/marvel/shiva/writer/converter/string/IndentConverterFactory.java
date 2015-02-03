@@ -35,6 +35,8 @@ public class IndentConverterFactory {
             builder.append(indent);
         }
 
+        builder.append("|--> ");
+
         return builder.toString();
     }
 }

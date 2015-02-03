@@ -1,6 +1,7 @@
 package fury.marvel.shiva.trace.stack;
 
 
+import fury.marvel.shiva.trace.stack.init.RequestStackInfo;
 import fury.marvel.shiva.trace.stack.sql.SqlStackInfo;
 import fury.marvel.shiva.writer.ConsoleWriter;
 
@@ -59,7 +60,9 @@ public class ThreadStackManager {
         StackInfo parent = stackInfo.getParent();
 
         if (parent == null) {
-            new ConsoleWriter().write(rootStack);
+            if (rootStack instanceof RequestStackInfo) {
+                new ConsoleWriter().write(rootStack);
+            }
             init();
         } else {
             current.set(parent);

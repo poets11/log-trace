@@ -21,64 +21,73 @@ public class RequestConverter implements IndentConverter {
     public void convert(StackInfo stackInfo, Writer writer, int depth) throws IOException {
         RequestStackInfo info = (RequestStackInfo) stackInfo;
 
-        writer.write("URL : " + info.getUrl());
+        writer.write("** URL => " + info.getUrl());
         writer.write("\n");
-        writer.write("Thread Id : " + info.getThreadId());
+        writer.write("** Thread Id => " + info.getThreadId());
         writer.write("\n");
-        writer.write("Start Time : " + parseDate(info.getStart()));
+        writer.write("** Start Time => " + parseDate(info.getStart()));
         writer.write("\n");
-        writer.write("End Time : " + parseDate(info.getEnd()));
+        writer.write("** End Time => " + parseDate(info.getEnd()));
         writer.write("\n");
-        writer.write("Elapsed Time : " + info.getElapsedTime() + "ms");
+        writer.write("** Elapsed Time => " + info.getElapsedTime() + "ms");
         writer.write("\n");
-        writer.write("Method : " + info.getMethod());
+        writer.write("** Method => " + info.getMethod());
         writer.write("\n");
-        writer.write("IP : " + info.getRemoteUser());
+        writer.write("** IP => " + info.getRemoteUser());
         writer.write("\n");
-        writer.write("ContentType : " + info.getContentType());
+        writer.write("** ContentType => " + info.getContentType());
         writer.write("\n");
-        writer.write("Device Type : " + info.getDeviceInfo());
+        writer.write("** Device Type => " + info.getDeviceInfo());
         writer.write("\n");
-        writer.write("View File Path : " + info.getViewPath());
+        writer.write("** View File Path => " + info.getViewPath());
         writer.write("\n");
-
-        writer.write("Request Headers ------------------------------------------------");
+        writer.write("\n");
+        writer.write("** Request Headers Start ---------------------------------------------------");
         writer.write("\n");
         Map<String, String> headers = info.getHeaders();
         if (headers != null) {
             Iterator<Map.Entry<String, String>> iterator = headers.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, String> entry = iterator.next();
-                writer.write(entry.getKey() + " : " + entry.getValue());
+                writer.write("** " + entry.getKey() + " => " + entry.getValue());
                 writer.write("\n");
             }
         }
+        writer.write("** Request Headers End -----------------------------------------------------");
+        writer.write("\n");
+        writer.write("\n");
 
-        writer.write("Request Parameters ---------------------------------------------");
+        writer.write("** Request Parameters Start ------------------------------------------------");
         writer.write("\n");
         Map<String, String> params = info.getParams();
         if (params != null) {
             Iterator<Map.Entry<String, String>> iterator = params.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, String> entry = iterator.next();
-                writer.write(entry.getKey() + " : " + entry.getValue());
+                writer.write("** " + entry.getKey() + " => " + entry.getValue());
                 writer.write("\n");
             }
         }
+        writer.write("** Request Parameters End --------------------------------------------------");
+        writer.write("\n");
+        writer.write("\n");
 
-        writer.write("Model Datas ----------------------------------------------------");
+        writer.write("** Model Datas Start -------------------------------------------------------");
         writer.write("\n");
         Map<String, Object> model = info.getModel();
         if (model != null) {
             Iterator<Map.Entry<String, Object>> iterator = model.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<String, Object> entry = iterator.next();
-                writer.write(entry.getKey() + " : " + ObjectConverter.convert(entry.getValue()));
+                writer.write("** " + entry.getKey() + " => " + ObjectConverter.convert(entry.getValue()));
                 writer.write("\n");
             }
         }
+        writer.write("** Model Datas End ---------------------------------------------------------");
+        writer.write("\n");
+        writer.write("\n");
 
-        writer.write("Call Stack ----------------------------------------------------");
+        writer.write("** Call Stack Start --------------------------------------------------------");
         writer.write("\n");
     }
 

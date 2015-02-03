@@ -3,7 +3,9 @@ package fury.marvel.shiva.writer.converter.string;
 import fury.marvel.shiva.trace.stack.StackInfo;
 import fury.marvel.shiva.trace.stack.sql.SqlStackInfoImpl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
@@ -18,19 +20,26 @@ public class SqlConverter implements IndentConverter {
         SqlStackInfoImpl info = (SqlStackInfoImpl) stackInfo;
 
         writer.write(IndentConverterFactory.getIndentString(depth));
-        writer.write("Execute SQL");
+        writer.write("* Execute SQL => ");
+
+        String sql = info.getSql();
+        StringReader reader = new StringReader(sql);
+        BufferedReader bufferedReader = new BufferedReader(reader);
+        String line = null;
+        while ((line = bufferedReader.readLine()) != null) {
+            line = line.trim();
+            if (line.length() > 0) {
+                writer.write(line + " ");
+            }
+        }
         writer.write("\n");
 
         writer.write(IndentConverterFactory.getIndentString(depth));
-        writer.write("Elapsed Time : " + info.getElapsedTime());
+        writer.write("* Elapsed Time => " + info.getElapsedTime() + "ms");
         writer.write("\n");
 
         writer.write(IndentConverterFactory.getIndentString(depth));
-        writer.write(info.getSql());
-        writer.write("\n");
-
-        writer.write(IndentConverterFactory.getIndentString(depth));
-        writer.write("Parameters");
+        writer.write("* SQL Parameters -------------------------------------------------------");
         writer.write("\n");
         Map<Object, Object> params = info.getParams();
         if (params != null) {
@@ -38,20 +47,21 @@ public class SqlConverter implements IndentConverter {
             while (iterator.hasNext()) {
                 Map.Entry<Object, Object> entry = iterator.next();
                 writer.write(IndentConverterFactory.getIndentString(depth));
-                writer.write("Param " + entry.getKey() + " : " + entry.getValue());
+                writer.write("* Param " + entry.getKey() + " => " + entry.getValue());
                 writer.write("\n");
             }
         }
 
         writer.write(IndentConverterFactory.getIndentString(depth));
-        writer.write("Result Set");
+        writer.write("* SQL Results ----------------------------------------------------------");
         writer.write("\n");
         List<Map<String, Object>> resultSet = info.getResultSet();
         if (resultSet != null) {
             writer.write(IndentConverterFactory.getIndentString(depth));
             List<String> columnNames = info.getColumnNames();
             for (int i = 0; i < columnNames.size(); i++) {
-                writer.write(columnNames.get(i) + "\t");
+                if(i == 0) writer.write("* ");
+                writer.write(columnNames.get(i) + "\t\t\t");
             }
             writer.write("\n");
 
@@ -62,11 +72,14 @@ public class SqlConverter implements IndentConverter {
                     for (int j = 0; j < columnNames.size(); j++) {
                         String name = columnNames.get(j);
                         String value = rs.get(name) == null ? "" : rs.get(name).toString();
-                        writer.write(value + "\t");
+                        if(j == 0) writer.write("* ");
+                        writer.write(value + "\t\t\t");
                     }
                     writer.write("\n");
                 }
             }
         }
+
+        writer.write("\n");
     }
 }

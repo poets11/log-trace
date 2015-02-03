@@ -15,7 +15,9 @@ public class SimpleIndentConverter implements StackInfoConverter {
     @Override
     public void convert(StackInfo stackInfo, Writer writer) {
         try {
+            writer.write("********************************************** Log Trace Start *****************************************\n");
             doConvert(stackInfo, writer, 0);
+            writer.write("********************************************** Log Trace End *****************************************\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
