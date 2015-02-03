@@ -1,7 +1,7 @@
 package fury.marvel.shiva.trace.stack.call;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fury.marvel.shiva.trace.ObjectConverter;
-import fury.marvel.shiva.writer.converter.ConverterFactory;
 import fury.marvel.shiva.trace.stack.StackInfo;
 
 import java.util.ArrayList;
@@ -16,8 +16,9 @@ public class MethodStackInfo implements StackInfo {
     private long elapsedTime;
     private String className;
     private String methodName;
-    private String[] paramValues;
-    private String returnValue;
+    private Object[] paramValues;
+    private Object returnValue;
+    @JsonIgnore
     private StackInfo parent;
     private List<StackInfo> childStack;
 
@@ -70,7 +71,7 @@ public class MethodStackInfo implements StackInfo {
         this.methodName = methodName;
     }
 
-    public String[] getParamValues() {
+    public Object[] getParamValues() {
         return paramValues;
     }
 
@@ -80,19 +81,17 @@ public class MethodStackInfo implements StackInfo {
 
             for (int i = 0; i < paramValues.length; i++) {
                 Object paramValue = paramValues[i];
-                String convertedString = ObjectConverter.convertString(paramValue);
-
-                this.paramValues[i] = convertedString;
+                this.paramValues[i] = ObjectConverter.convert(paramValue);
             }
         }
     }
 
-    public String getReturnValue() {
+    public Object getReturnValue() {
         return returnValue;
     }
 
     public void setReturnValue(Object returnValue) {
-        this.returnValue = ObjectConverter.convertString(returnValue);
+        this.returnValue = ObjectConverter.convert(returnValue);
     }
 
     public List<StackInfo> getChildStack() {

@@ -1,7 +1,7 @@
 package fury.marvel.shiva.trace.stack.call;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fury.marvel.shiva.trace.ObjectConverter;
-import fury.marvel.shiva.writer.converter.ConverterFactory;
 import fury.marvel.shiva.trace.stack.StackInfo;
 
 import java.util.ArrayList;
@@ -16,7 +16,8 @@ public class ConstructorStackInfo implements StackInfo {
     private long elapsedTime;
     private String className;
     private String methodName;
-    private String[] paramValues;
+    private Object[] paramValues;
+    @JsonIgnore
     private StackInfo parent;
     private List<StackInfo> childStack;
 
@@ -83,7 +84,7 @@ public class ConstructorStackInfo implements StackInfo {
         this.methodName = methodName;
     }
 
-    public String[] getParamValues() {
+    public Object[] getParamValues() {
         return paramValues;
     }
 
@@ -93,7 +94,7 @@ public class ConstructorStackInfo implements StackInfo {
 
             for (int i = 0; i < paramValues.length; i++) {
                 Object paramValue = paramValues[i];
-                this.paramValues[i] = ObjectConverter.convertString(paramValue);
+                this.paramValues[i] = ObjectConverter.convert(paramValue);
             }
         }
     }

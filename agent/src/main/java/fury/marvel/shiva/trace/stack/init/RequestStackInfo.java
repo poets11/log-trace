@@ -1,7 +1,6 @@
 package fury.marvel.shiva.trace.stack.init;
 
 import fury.marvel.shiva.trace.ObjectConverter;
-import fury.marvel.shiva.writer.converter.ConverterFactory;
 import fury.marvel.shiva.trace.stack.StackInfo;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -24,7 +23,7 @@ public class RequestStackInfo implements StackInfo {
     private Map<String, String> headers;
     private Map<String, String> params;
     private String viewPath;
-    private Map<String, String> model;
+    private Map<String, Object> model;
     private List<StackInfo> childStack;
 
     public RequestStackInfo() {
@@ -60,7 +59,7 @@ public class RequestStackInfo implements StackInfo {
         headers = new HashMap<String, String>();
         params = new HashMap<String, String>();
         childStack = new ArrayList<StackInfo>();
-        model = new HashMap<String, String>();
+        model = new HashMap<String, Object>();
     }
 
     public long getThreadId() {
@@ -120,7 +119,7 @@ public class RequestStackInfo implements StackInfo {
         return viewPath;
     }
 
-    public Map<String, String> getModel() {
+    public Map<String, Object> getModel() {
         return model;
     }
 
@@ -156,7 +155,7 @@ public class RequestStackInfo implements StackInfo {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            model.put(key, ObjectConverter.convertString(value));
+            model.put(key, ObjectConverter.convert(value));
         }
     }
 

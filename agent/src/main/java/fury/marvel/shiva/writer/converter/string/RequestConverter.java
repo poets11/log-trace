@@ -1,5 +1,6 @@
 package fury.marvel.shiva.writer.converter.string;
 
+import fury.marvel.shiva.trace.ObjectConverter;
 import fury.marvel.shiva.trace.stack.StackInfo;
 import fury.marvel.shiva.trace.stack.init.RequestStackInfo;
 
@@ -67,12 +68,12 @@ public class RequestConverter implements IndentConverter {
 
         writer.write("Model Datas ----------------------------------------------------");
         writer.write("\n");
-        Map<String, String> model = info.getModel();
+        Map<String, Object> model = info.getModel();
         if (model != null) {
-            Iterator<Map.Entry<String, String>> iterator = model.entrySet().iterator();
+            Iterator<Map.Entry<String, Object>> iterator = model.entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<String, String> entry = iterator.next();
-                writer.write(entry.getKey() + " : " + entry.getValue());
+                Map.Entry<String, Object> entry = iterator.next();
+                writer.write(entry.getKey() + " : " + ObjectConverter.convert(entry.getValue()));
                 writer.write("\n");
             }
         }

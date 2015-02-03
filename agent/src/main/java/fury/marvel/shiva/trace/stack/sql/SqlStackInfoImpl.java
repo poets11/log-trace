@@ -1,5 +1,6 @@
 package fury.marvel.shiva.trace.stack.sql;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fury.marvel.shiva.trace.stack.StackInfo;
 
 import java.sql.ResultSet;
@@ -22,7 +23,9 @@ public class SqlStackInfoImpl implements SqlStackInfo {
     private String returnValue;
     private List<String> columnNames;
     private List<Map<String, Object>> resultSet;
+    @JsonIgnore
     private Map<String, Object> currentResultSet;
+    @JsonIgnore
     private StackInfo parent;
 
     public SqlStackInfoImpl() {
@@ -43,6 +46,7 @@ public class SqlStackInfoImpl implements SqlStackInfo {
 
     public void setEnd(long end) {
         this.end = end;
+        setElapsedTime(end - start);
     }
 
     public long getElapsedTime() {

@@ -60,6 +60,7 @@ public class PreparedStatementModifier extends ClassModifier {
             else if (TARGET_EXECUTER.contains(methodName)) {
                 method.addLocalVariable(VAR_NAME, sqlStackInfo);
                 method.insertBefore("{ " + VAR_NAME + " = (" + SQL_STACK_INFO_CLASS_NAME + ")" + STACK_MANAGER_CLASS_NAME + ".getSql(); "
+                        + VAR_NAME + ".setEnd(System.currentTimeMillis()); "
                         + getPopMessage(VAR_NAME) + " }");
             }
             else if(methodName.equals(getResultSet)) {

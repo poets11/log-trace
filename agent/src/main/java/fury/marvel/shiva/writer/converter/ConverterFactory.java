@@ -6,5 +6,6 @@ package fury.marvel.shiva.writer.converter;
 public abstract class ConverterFactory {
     public static StackInfoConverter getStackInfoConverter() {
         return new SimpleIndentConverter();
+//        return new SimpleJsonConverter();
     }
 }

@@ -22,7 +22,7 @@ public class MethodConverter implements IndentConverter {
         writer.write("Elapsed Time : " + info.getElapsedTime() + "ms");
         writer.write("\n");
 
-        String[] paramValues = info.getParamValues();
+        Object[] paramValues = info.getParamValues();
         if (paramValues != null && paramValues.length > 0) {
             for (int i = 0; i < paramValues.length; i++) {
                 writer.write(IndentConverterFactory.getIndentString(depth));
