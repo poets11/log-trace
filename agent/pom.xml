@@ -33,6 +33,11 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.4.4</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -43,7 +48,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <premain-class>fury.marvel.shiva.agent.Agent</premain-class>
+                            <premain-class>fury.marvel.shiva.agent.AgentMain</premain-class>
                             <can-retransform-classes>true</can-retransform-classes>
                         </manifestEntries>
                     </archive>
