@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>sandbox9.shiva</groupId>
-        <artifactId>shiva-parentpom</artifactId>
+        <groupId>sandbox9.trinity</groupId>
+        <artifactId>trinity-parentpom</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>shiva-agent</artifactId>
+    <artifactId>trinity-agent</artifactId>
 
     <dependencies>
         <dependency>
@@ -48,8 +48,9 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <premain-class>fury.marvel.shiva.agent.AgentMain</premain-class>
+                            <premain-class>fury.marvel.trinity.agent.AgentMain</premain-class>
                             <can-retransform-classes>true</can-retransform-classes>
+                            <boot-class-path>javassist-3.18.1-GA.jar jackson-databind-2.4.4.jar jackson-core-2.4.4.jar jackson-annotations-2.4.4.jar javax.servlet-api-3.0.1.jar</boot-class-path>
                         </manifestEntries>
                     </archive>
                 </configuration>
