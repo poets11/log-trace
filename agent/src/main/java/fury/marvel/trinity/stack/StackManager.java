@@ -1,9 +1,12 @@
 package fury.marvel.trinity.stack;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fury.marvel.trinity.stack.info.SqlStackInfo;
 import fury.marvel.trinity.stack.info.StackInfo;
 import fury.marvel.trinity.stack.info.impl.AbstractStackInfo;
+import fury.marvel.trinity.stack.info.marshall.DefaultMarshaller;
 import fury.marvel.trinity.writer.Writer;
 import fury.marvel.trinity.writer.WriterFactory;
 
@@ -13,9 +16,22 @@ import java.util.Stack;
  * Created by poets11 on 15. 1. 28..
  */
 public class StackManager {
+    // TODO ThreadLocal Clear
     private static ThreadLocal<Stack<StackInfo>> threadStack = new ThreadLocal<Stack<StackInfo>>();
     private static ThreadLocal<Stack<SqlStackInfo>> threadSqlStack = new ThreadLocal<Stack<SqlStackInfo>>();
+    
+    public static void catchException(Exception e) {
+        Stack<StackInfo> stack = getStack();
+        
+        AbstractStackInfo peek = (AbstractStackInfo) stack.peek();
+        peek.setException(e);
 
+        while(stack.empty() == false) {
+            peek = (AbstractStackInfo) stack.peek();
+            pop(peek);
+        }  
+    }
+    
     private static Stack<StackInfo> getStack() {
         Stack<StackInfo> stack = threadStack.get();
 
@@ -40,12 +56,12 @@ public class StackManager {
 
     public static void push(StackInfo stackInfo) {
         Stack<StackInfo> stack = getStack();
-        
+
         if (stack.empty() == false) {
             StackInfo parent = stack.peek();
             parent.appendChild(stackInfo);
         }
-        
+
         ((AbstractStackInfo) stackInfo).setStartTime(System.currentTimeMillis());
         ((AbstractStackInfo) stackInfo).setDepth(stack.size());
 
@@ -61,10 +77,20 @@ public class StackManager {
         if (stack.empty()) throw new IllegalStateException("stack is empty");
 
         StackInfo top = stack.peek();
-        if (stackInfo.hashCode() != top.hashCode())
+        if (stackInfo.hashCode() != top.hashCode()) {
+            // TODO Exception
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                System.out.println(objectMapper.writeValueAsString(stack));
+                System.out.println(objectMapper.writeValueAsString(stackInfo));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
             throw new IllegalStateException("current stack is different. top : "
                     + top.getClass().getName() + "(" + top.hashCode() + ")" + " / pop : "
-                    + stackInfo.getClass().getName() + "(" + top.hashCode() + ")");
+                    + stackInfo.getClass().getName() + "(" + stackInfo.hashCode() + ")");
+        }
 
         stack.pop();
 
@@ -95,6 +121,7 @@ public class StackManager {
 
         SqlStackInfo top = sqlStack.peek();
         if (sqlStackInfo.hashCode() != top.hashCode()) {
+            // TODO Exception
             throw new IllegalStateException("current sql stack is different. top : "
                     + top.hashCode() + " / pop : " + sqlStackInfo.hashCode());
         }

@@ -1,12 +1,12 @@
 package fury.marvel.trinity.transformer.modifier;
 
+import fury.marvel.trinity.transformer.TargetMethod;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 
 import java.io.IOException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,25 +14,25 @@ import java.util.List;
  * Created by poets11 on 15. 1. 29..
  */
 public class StatementModifier extends AbstractSqlModifier {
-    private static final String ADD_PARAM = VAR_NAME + ".addParam(($w)$2);";
-    protected CtClass ctStatement;
-    protected List<String> executeMethods;
-    protected List<String> setMethods;
+    public static final String JAVA_SQL_STATEMENT = "java.sql.Statement";
+    
+    protected TargetMethod executeMethodInStatement;
+    protected TargetMethod executeQueryMethodInStatement;
+    protected TargetMethod executeUpdateMethodInStatement;
 
     public StatementModifier() throws IOException {
         init();
     }
 
     private void init() throws IOException {
-        ctStatement     = ctClassUtil.createCtClass(Statement.class);
-        executeMethods  = Arrays.asList(new String[]{"execute", "executeQuery", "executeUpdate"});
-        setMethods      = Arrays.asList(new String[]{"setBigDecimal", "setDate", "setDouble",
-                "setFloat", "setInt", "setLong", "setNull", "setString", "setTime", "setTimestamp"});
+        executeMethodInStatement        = new TargetMethod("execute", new String[]{"java.lang.String"});
+        executeQueryMethodInStatement   = new TargetMethod("executeQuery", new String[]{"java.lang.String"});
+        executeUpdateMethodInStatement  = new TargetMethod("executeUpdate", new String[]{"java.lang.String"});
     }
 
     @Override
     protected boolean canModify(String className, CtClass target) throws Exception {
-        return isSub(target, ctStatement);
+        return isInstanceOfInterface(target, JAVA_SQL_STATEMENT);
     }
 
     @Override
@@ -40,32 +40,11 @@ public class StatementModifier extends AbstractSqlModifier {
         CtMethod[] methods = target.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             CtMethod method = methods[i];
-            String methodName = method.getName();
-
-            if (executeMethods.contains(methodName)) {
-                CtClass[] parameterTypes = method.getParameterTypes();
-
-                if (notEmpty(parameterTypes)) setTraceExecuteStatement(method);
-                else setTraceExecutePreparedStatement(method);
-
-                continue;
-            }
-
-            if (setMethods.contains(methodName)) {
-                setTraceSetMethod(method);
-            }
+            
+            if(executeMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
+            else if(executeQueryMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
+            else if(executeUpdateMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
         }
-    }
-
-    protected void setTraceSetMethod(CtMethod target) throws CannotCompileException {
-        target.addLocalVariable(VAR_NAME, ctSqlStackInfo);
-
-        String afterStatement = createStatementBlock(createPeekVarStatement(SQL_STACK_INFO), ADD_PARAM);
-        target.insertAfter(afterStatement);
-    }
-
-    protected boolean notEmpty(CtClass[] parameterTypes) {
-        return parameterTypes != null && parameterTypes.length > 0;
     }
 
     protected void setTraceExecuteStatement(CtMethod target) throws CannotCompileException {
@@ -75,13 +54,6 @@ public class StatementModifier extends AbstractSqlModifier {
         target.insertBefore(beforeStatement);
 
         String afterStatement = createStatementBlock(SET_RESULT, POP_MESSAGE);
-        target.insertAfter(afterStatement);
-    }
-
-    protected void setTraceExecutePreparedStatement(CtMethod target) throws CannotCompileException, NotFoundException {
-        target.addLocalVariable(VAR_NAME, ctSqlStackInfo);
-
-        String afterStatement = createStatementBlock(createPeekVarStatement(SQL_STACK_INFO), SET_RESULT, POP_MESSAGE);
         target.insertAfter(afterStatement);
     }
 }

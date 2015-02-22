@@ -1,14 +1,14 @@
 package fury.marvel.trinity.transformer.modifier;
 
 import fury.marvel.trinity.stack.info.impl.RequestStackInfoImpl;
+import fury.marvel.trinity.transformer.TargetMethod;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import org.springframework.web.servlet.HandlerAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by poets11 on 15. 1. 28..
@@ -19,9 +19,9 @@ public class HandlerAdapterModifier extends AbstractClassModifier {
     protected static final String SET_REQUEST = VAR_NAME + ".setRequest($1);";
     protected static final String SET_MAV = VAR_NAME + ".setModelAndView(($w)$_);";
 
+    protected TargetMethod handleMethod;
     protected CtClass ctRequestStackInfo;
-    protected CtClass ctHandlerAdapter;
-    protected CtClass[] ctHandleParamTypes;
+    protected List<String> handlerAdapterClassNames;
 
     public HandlerAdapterModifier() throws IOException {
         init();
@@ -29,36 +29,49 @@ public class HandlerAdapterModifier extends AbstractClassModifier {
 
     protected void init() throws IOException {
         ctRequestStackInfo = ctClassUtil.createCtClass(RequestStackInfoImpl.class);
-        ctHandlerAdapter = ctClassUtil.createCtClass(HandlerAdapter.class);
 
-        ctHandleParamTypes = new CtClass[3];
-        ctHandleParamTypes[0] = ctClassUtil.createCtClass(HttpServletRequest.class);
-        ctHandleParamTypes[1] = ctClassUtil.createCtClass(HttpServletResponse.class);
-        ctHandleParamTypes[2] = ctClassUtil.createCtClass(Object.class);
+        handleMethod = new TargetMethod(HANDLE_METHOD, new String[]{
+                "javax.servlet.http.HttpServletRequest",
+                "javax.servlet.http.HttpServletResponse",
+                "java.lang.Object"
+        });
+
+        handlerAdapterClassNames = Arrays.asList(new String[]{
+                "org/springframework/web/servlet/mvc/HttpRequestHandlerAdapter",
+                "org/springframework/web/servlet/mvc/SimpleControllerHandlerAdapter",
+                "org/springframework/web/servlet/mvc/method/AbstractHandlerMethodAdapter"
+        });
     }
+
 
     @Override
     protected boolean canModify(String className, CtClass target) throws Exception {
-        return isSub(target, ctHandlerAdapter);
+        return handlerAdapterClassNames.contains(className);
     }
 
     @Override
     protected void doModify(String className, CtClass target) throws Exception {
-        try {
-            CtMethod ctMethod = getHandleMethod(target);
-            ctMethod.addLocalVariable(VAR_NAME, ctRequestStackInfo);
+        CtMethod ctMethod = getHandleMethod(target);
+        if (ctMethod == null) return;
 
-            String beforeStatement = createStatementBlock(createInitVarStatement(REQUEST_STACK_INFO), SET_REQUEST, PUSH_MESSAGE);
-            ctMethod.insertBefore(beforeStatement);
+        ctMethod.addLocalVariable(VAR_NAME, ctRequestStackInfo);
 
-            String afterStatement = createStatementBlock(SET_MAV, POP_MESSAGE);
-            ctMethod.insertAfter(afterStatement);
-        } catch (NotFoundException nfe) {
-            // if not found method from target then do nothing
-        }
+        String beforeStatement = createStatementBlock(createInitVarStatement(REQUEST_STACK_INFO), SET_REQUEST, PUSH_MESSAGE);
+        ctMethod.insertBefore(beforeStatement);
+
+        String afterStatement = createStatementBlock(SET_MAV, POP_MESSAGE);
+        ctMethod.insertAfter(afterStatement);
+
+        ctMethod.addCatch(createStatementBlock(EXCEPTION_CATCH_MESSAGE, "throw $e;"), ctException);
     }
 
     protected CtMethod getHandleMethod(CtClass target) throws NotFoundException {
-        return target.getDeclaredMethod(HANDLE_METHOD, ctHandleParamTypes);
+        CtMethod[] methods = target.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            CtMethod ctMethod = methods[i];
+            if (handleMethod.isEqualCtMethod(ctMethod)) return ctMethod;
+        }
+
+        return null;
     }
 }

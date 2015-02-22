@@ -1,17 +1,18 @@
 package fury.marvel.trinity.transformer.modifier;
 
 import fury.marvel.trinity.stack.info.impl.ResultSetStackInfoImpl;
+import fury.marvel.trinity.transformer.TargetMethod;
+import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
-* Created by poets11 on 15. 2. 2..
-*/
+ * Created by poets11 on 15. 2. 2..
+ */
 public class ResultSetModifier extends AbstractSqlModifier {
     protected static final String RESULT_SET_STACK_INFO = ResultSetStackInfoImpl.class.getName();
     protected static final String PEEK_SQL_MESSAGE = VAR_NAME + " = (" + SQL_STACK_INFO + ")"
@@ -24,25 +25,30 @@ public class ResultSetModifier extends AbstractSqlModifier {
     protected static final String ADD_RESULT_SET_VALUE = SQL_VAR_NAME + ".addResultSetValue(($w)$1, ($w)$_);";
     protected static final String NEXT = SQL_VAR_NAME + ".next($_);";
     protected static final String POP_SQL_MESSAGE = "if($_ == false) { " + STACK_MANAGER + ".popSql(" + VAR_NAME + "); }";
+    protected static final String JAVA_SQL_RESULT_SET = "java.sql.ResultSet";
 
     protected CtClass ctResultSetStackInfo;
-    protected CtClass ctResultSet;
-    protected List<String> getMethods;
+    protected List<TargetMethod> getters;
 
     public ResultSetModifier() throws IOException {
         init();
     }
 
     protected void init() throws IOException {
-        ctResultSetStackInfo    = ctClassUtil.createCtClass(ResultSetStackInfoImpl.class);
-        ctResultSet             = ctClassUtil.createCtClass(ResultSet.class);
-        getMethods              = Arrays.asList(new String[]{"getBigDecimal", "getBoolean", "getDate",
-                "getDouble", "getFloat", "getInt", "getLong", "getString", "getTime", "getTimestamp"});
+        ctResultSetStackInfo = ctClassUtil.createCtClass(ResultSetStackInfoImpl.class);
+
+        getters = new ArrayList<TargetMethod>();
+        getters.add(new TargetMethod("getInt", new String[]{"java.lang.String"}));
+        getters.add(new TargetMethod("getLong", new String[]{"java.lang.String"}));
+        getters.add(new TargetMethod("getFloat", new String[]{"java.lang.String"}));
+        getters.add(new TargetMethod("getDouble", new String[]{"java.lang.String"}));
+        getters.add(new TargetMethod("getDate", new String[]{"java.lang.String"}));
+        getters.add(new TargetMethod("getString", new String[]{"java.lang.String"}));
     }
 
     @Override
     protected boolean canModify(String className, CtClass target) throws Exception {
-        return isSub(target, ctResultSet);
+        return isInstanceOfInterface(target, JAVA_SQL_RESULT_SET);
     }
 
     @Override
@@ -52,25 +58,33 @@ public class ResultSetModifier extends AbstractSqlModifier {
             CtMethod method = methods[i];
             String methodName = method.getName();
 
-            if (getMethods.contains(methodName)) {
-                CtClass[] parameterTypes = method.getParameterTypes();
-
-                if ("java.lang.String".equals(parameterTypes[0].getName())) {
-                    method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
-                    method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
-
-                    String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
-                            INIT_SQL_VAR_STATEMENT, ADD_RESULT_SET_VALUE);
-                    method.insertAfter(afterStatement);
+            for (int j = 0; j < getters.size(); j++) {
+                TargetMethod targetMethod = getters.get(j);
+                if (targetMethod.isEqualCtMethod(method)) {
+                    setTraceGetMethod(method);
+                    break;
                 }
-            } else if (methodName.equals("next")) {
-                method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
-                method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
-
-                String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
-                        INIT_SQL_VAR_STATEMENT, NEXT, POP_SQL_MESSAGE);
-                method.insertAfter(afterStatement);
             }
+
+            if (methodName.equals("next")) setTraceNextMethod(method);
         }
+    }
+
+    private void setTraceNextMethod(CtMethod method) throws CannotCompileException {
+        method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
+        method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
+
+        String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
+                INIT_SQL_VAR_STATEMENT, NEXT, POP_SQL_MESSAGE);
+        method.insertAfter(afterStatement);
+    }
+
+    protected void setTraceGetMethod(CtMethod method) throws CannotCompileException {
+        method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
+        method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
+
+        String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
+                INIT_SQL_VAR_STATEMENT, ADD_RESULT_SET_VALUE);
+        method.insertAfter(afterStatement);
     }
 }

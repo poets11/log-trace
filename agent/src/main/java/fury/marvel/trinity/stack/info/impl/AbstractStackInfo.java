@@ -1,6 +1,8 @@
 package fury.marvel.trinity.stack.info.impl;
 
+import fury.marvel.trinity.agent.AgentConfig;
 import fury.marvel.trinity.stack.info.StackInfo;
+import fury.marvel.trinity.stack.info.TraceLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,15 @@ public abstract class AbstractStackInfo implements StackInfo {
     protected long endTime;
     protected long elapsedTime;
     protected List<StackInfo> childStack;
+    protected Exception exception;
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
+    }
 
     @Override
     public int getDepth() {
@@ -62,5 +73,43 @@ public abstract class AbstractStackInfo implements StackInfo {
 
     public void setElapsedTime(long elapsedTime) {
         this.elapsedTime = elapsedTime;
+    }
+    
+    @Override
+    public boolean isWriteable(TraceLevel configuredLevel) {
+        TraceLevel currLevel = getTraceLevel();
+        return currLevel.compareTo(configuredLevel) > -1;
+    }
+
+    private TraceLevel getTraceLevel() {
+        Exception currentException = getExceptionInStack(this);
+        
+        if(currentException != null) {
+            Class conditionException = AgentConfig.getConditionException();
+            if(conditionException.isInstance(currentException)) return TraceLevel.EXCEPTION;
+        }
+        else if (getElapsedTime() >= AgentConfig.getConditionTimeout()) {
+            return TraceLevel.TIMEOUT;
+        }
+        
+        return TraceLevel.ALL;
+    }
+    
+    public static Exception getExceptionInStack(StackInfo stackInfo) {
+        AbstractStackInfo abstractStackInfo = (AbstractStackInfo) stackInfo;
+
+        if (abstractStackInfo.getException() != null) return abstractStackInfo.getException();
+
+        List<StackInfo> childStacks = abstractStackInfo.getChildStack();
+        if(childStacks != null) {
+            for (int i = 0; i < childStacks.size(); i++) {
+                AbstractStackInfo childAbstractStackInfo = (AbstractStackInfo) childStacks.get(i);
+                
+                Exception exceptionInStack = getExceptionInStack(childAbstractStackInfo);
+                if(exceptionInStack != null) return exceptionInStack;             
+            }
+        }
+        
+        return null;
     }
 }

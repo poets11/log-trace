@@ -92,6 +92,8 @@ public class RequestStackInfoImpl extends AbstractStackInfo implements RequestSt
     }
 
     private void initModels(ModelAndView modelAndView) {
+        if(modelAndView == null) return;
+        
         models = new HashMap<String, StringObject>();
 
         Iterator<Map.Entry<String, Object>> iterator = modelAndView.getModel().entrySet().iterator();

@@ -9,6 +9,7 @@ import java.io.IOException;
 /**
  * Created by poets11 on 15. 2. 11..
  */
+@Deprecated
 public class DispatchServletModifier extends AbstractClassModifier {
     protected static final String DISPATCHER_SERVLET_CLASS_NAME = "org/springframework/web/servlet/DispatcherServlet";
     protected static final String REQUEST_STACK_INFO = RequestStackInfoImpl.class.getName();

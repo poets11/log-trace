@@ -17,6 +17,12 @@ public class SimpleSqlInfoConverter extends SimpleConverter {
 
         builder.append(indentString);
         builder.append(sqlStackInfo.getSql());
+        
+        if(sqlStackInfo.getParams() != null && sqlStackInfo.getParams().size() > 0) {
+            builder.append("\n");
+            builder.append(indentString);
+            builder.append("Params : " + sqlStackInfo.getParams());
+        }
 
         return builder.toString();
     }

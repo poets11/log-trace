@@ -15,6 +15,10 @@ public interface StackInfo {
     int getDepth();
 
     void appendChild(StackInfo stackInfo);
-
+    
     List<StackInfo> getChildStack();
+
+    Exception getException();
+
+    boolean isWriteable(TraceLevel configuredLevel);
 }

@@ -30,7 +30,7 @@ public class PackageModifier extends AbstractClassModifier {
         ignoreMethods = new ArrayList<String>();
         ignoreMethods.add("toString");
 
-        basePackage = AgentConfig.getInstance().getBasePackage();
+        basePackage = AgentConfig.get(AgentConfig.PROP_BASE_PACKAGE);
         ctPackageStackInfo = ctClassUtil.createCtClass(PackageStackInfoImpl.class);
     }
 
@@ -69,5 +69,6 @@ public class PackageModifier extends AbstractClassModifier {
 
         String afterStatement = createStatementBlock(SET_RESULT, POP_MESSAGE);
         ctMethod.insertAfter(afterStatement);
+
     }
 }

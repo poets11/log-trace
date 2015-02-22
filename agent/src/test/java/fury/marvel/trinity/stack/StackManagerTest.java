@@ -1,5 +1,6 @@
 package fury.marvel.trinity.stack;
 
+import fury.marvel.trinity.agent.AgentConfig;
 import fury.marvel.trinity.stack.info.StackInfo;
 import fury.marvel.trinity.stack.info.impl.PackageStackInfoImpl;
 
@@ -12,6 +13,8 @@ public class StackManagerTest {
 
     @org.junit.Test
     public void testStackManager() throws Exception {
+        AgentConfig.init(null);
+
         StackInfo stackInfo = StackManager.peek();
         assertNull(stackInfo);
 

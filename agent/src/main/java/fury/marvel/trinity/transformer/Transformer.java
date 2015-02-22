@@ -25,21 +25,23 @@ public class Transformer implements ClassFileTransformer {
         modifiers = new ArrayList<ClassModifier>();
 
         try {
+//            modifiers.add(new AllClassModifier());
             modifiers.add(new HandlerAdapterModifier());
+            
             modifiers.add(new PackageModifier());
+            
             modifiers.add(new ConnectionModifier());
             modifiers.add(new StatementModifier());
+            modifiers.add(new PreparedStatementModifier());
             modifiers.add(new ResultSetModifier());
-//            modifiers.add(new DispatchServletModifier());
         } catch (IOException e) {
-            // TODO if modifier throws exception int init then skip init modifier
+            // TODO 두두두두두두두두두
             e.printStackTrace();
         }
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        // the classloader is null that means the class is out of bci
         if (loader == null) return classfileBuffer;
         else return doTransform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
     }
@@ -56,7 +58,6 @@ public class Transformer implements ClassFileTransformer {
                     ClassModifier classModifier = modifiers.get(i);
                     classModifier.modify(className, target);
                 }
-//                target.toClass(loader, protectionDomain);
                 transformed = target.toBytecode();
                 return transformed;
             }

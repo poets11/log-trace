@@ -23,7 +23,13 @@ public class SimplePackageInfoConverter extends SimpleConverter {
         builder.append(".");
         builder.append(methodName);
         builder.append("();");
-        
+
+        if(packageStackInfo.getParams() != null && packageStackInfo.getParams().size() > 0) {
+            builder.append("\n");
+            builder.append(indentString);
+            builder.append("Params : " + packageStackInfo.getParams());
+        }
+
         return builder.toString();
     }
 }

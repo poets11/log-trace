@@ -1,5 +1,6 @@
 package fury.marvel.trinity.agent;
 
+import fury.marvel.trinity.stack.info.TraceLevel;
 import fury.marvel.trinity.transformer.Transformer;
 
 import java.io.*;
@@ -11,26 +12,17 @@ import java.util.PropertyResourceBundle;
  */
 public class AgentMain {
     public static void premain(String agentArgs, Instrumentation inst) {
-        initConfig(agentArgs);
-        inst.addTransformer(new Transformer(), true);
-    }
+        try {
+            AgentConfig.init(agentArgs);
 
-    private static void initConfig(String agentArgs) {
-        if(agentArgs == null || agentArgs.trim().length() == 0) return;
-
-        String[] split = agentArgs.split(AgentConfig.PARAM_SEPARATOR);
-        for (int i = 0; i < split.length; i++) {
-            String params = split[i];
-            initConfigParam(params);
-        }
-    }
-
-    private static void initConfigParam(String params) {
-        String[] split = params.split(AgentConfig.KEY_VALUE_SEPARATOR);
-        if (split.length != 2) return;
-        
-        if(AgentConfig.BASE_PACKAGE.equals(split[0])) {
-            AgentConfig.getInstance().setBasePackage(split[1]);
+            TraceLevel traceLevel = AgentConfig.getTraceLevel();
+            if(traceLevel.equals(TraceLevel.NONE) == false) {
+                inst.addTransformer(new Transformer(), true);
+            } else {
+                System.out.println("__ trace level none");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
