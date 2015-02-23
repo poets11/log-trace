@@ -1,7 +1,6 @@
 package fury.marvel.trinity.agent;
 
 
-
 import fury.marvel.trinity.stack.info.TraceLevel;
 
 import java.io.File;
@@ -36,14 +35,12 @@ public class AgentConfig {
 
         // load default properteis
         loadDefaultProperties();
-        
+
         // load custom properties
-        if(argsMap.containsKey(CONFIG_FILE_PATH)) loadCustomProperties(argsMap.get(CONFIG_FILE_PATH));
-        
+        if (argsMap.containsKey(CONFIG_FILE_PATH)) loadCustomProperties(argsMap.get(CONFIG_FILE_PATH));
+
         // load command line properties
         loadArgumentProperties(argsMap);
-
-        System.out.println("__ init agent config : " + CONFIG);
     }
 
     private static void loadDefaultProperties() throws IOException {
@@ -112,7 +109,7 @@ public class AgentConfig {
     public static long getConditionTimeout() {
         return Long.valueOf(get(PROP_CONDITION_TIMEOUT));
     }
-    
+
     public static Class getConditionException() {
         try {
             return Class.forName(get(PROP_CONDITION_EXCEPTION));
@@ -120,7 +117,7 @@ public class AgentConfig {
             return Exception.class;
         }
     }
-    
+
     public static TraceLevel getTraceLevel() {
         return TraceLevel.valueOf(get(PROP_TRACE_LEVEL));
     }

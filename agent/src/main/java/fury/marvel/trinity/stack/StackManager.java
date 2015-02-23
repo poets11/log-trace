@@ -1,12 +1,9 @@
 package fury.marvel.trinity.stack;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fury.marvel.trinity.stack.info.SqlStackInfo;
 import fury.marvel.trinity.stack.info.StackInfo;
 import fury.marvel.trinity.stack.info.impl.AbstractStackInfo;
-import fury.marvel.trinity.stack.info.marshall.DefaultMarshaller;
 import fury.marvel.trinity.writer.Writer;
 import fury.marvel.trinity.writer.WriterFactory;
 
@@ -16,45 +13,56 @@ import java.util.Stack;
  * Created by poets11 on 15. 1. 28..
  */
 public class StackManager {
-    // TODO ThreadLocal Clear
-    private static ThreadLocal<Stack<StackInfo>> threadStack = new ThreadLocal<Stack<StackInfo>>();
-    private static ThreadLocal<Stack<SqlStackInfo>> threadSqlStack = new ThreadLocal<Stack<SqlStackInfo>>();
+    private static ThreadLocal<Stack<StackInfo>> threadStack;
+    private static ThreadLocal<Stack<SqlStackInfo>> threadSqlStack;
+
+    public static boolean isInitialized() {
+        return threadStack != null && threadSqlStack != null;
+    }
+
+    public static void init() {
+        System.out.println("// TODO StackManager.init()");
+
+        threadStack = new ThreadLocal<Stack<StackInfo>>();
+        threadSqlStack = new ThreadLocal<Stack<SqlStackInfo>>();
+
+        threadStack.set(new Stack<StackInfo>());
+        threadSqlStack.set(new Stack<SqlStackInfo>());
+    }
+
+    public static void clear() {
+        System.out.println("// TODO StackManager.clear()");
+
+        if (isInitialized()) {
+            Stack<StackInfo> stack = getStack();
+            stack.clear();
+
+            Stack<SqlStackInfo> sqlStack = getSqlStack();
+            sqlStack.clear();
+
+            threadStack.remove();
+            threadSqlStack.remove();
+
+            threadStack = null;
+            threadSqlStack = null;
+        }
+    }
     
-    public static void catchException(Exception e) {
-        Stack<StackInfo> stack = getStack();
+    public static int size() {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.size() : StackManager가 초기화 되어있지 않음.");
+            return 0;
+        }
         
-        AbstractStackInfo peek = (AbstractStackInfo) stack.peek();
-        peek.setException(e);
-
-        while(stack.empty() == false) {
-            peek = (AbstractStackInfo) stack.peek();
-            pop(peek);
-        }  
-    }
-    
-    private static Stack<StackInfo> getStack() {
-        Stack<StackInfo> stack = threadStack.get();
-
-        if (stack == null) {
-            stack = new Stack<StackInfo>();
-            threadStack.set(stack);
-        }
-
-        return stack;
-    }
-
-    private static Stack<SqlStackInfo> getSqlStack() {
-        Stack<SqlStackInfo> sqlStack = threadSqlStack.get();
-
-        if (sqlStack == null) {
-            sqlStack = new Stack<SqlStackInfo>();
-            threadSqlStack.set(sqlStack);
-        }
-
-        return sqlStack;
+        return getStack().size();
     }
 
     public static void push(StackInfo stackInfo) {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.push() : StackManager가 초기화 되어있지 않음.");
+            return;
+        }
+
         Stack<StackInfo> stack = getStack();
 
         if (stack.empty() == false) {
@@ -71,30 +79,83 @@ public class StackManager {
     }
 
     public static void pop(StackInfo stackInfo) {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.pop() : StackManager가 초기화 되어있지 않음.");
+            return;
+        }
+
         ((AbstractStackInfo) stackInfo).setEndTime(System.currentTimeMillis());
 
         Stack<StackInfo> stack = getStack();
-        if (stack.empty()) throw new IllegalStateException("stack is empty");
+        if (stack.empty()) {
+            System.out.println("// TODO Exception in StackManager.pop() : 스택이 비어있어서 POP 불가.");
+            return;
+        }
 
         StackInfo top = stack.peek();
-        if (stackInfo.hashCode() != top.hashCode()) {
-            // TODO Exception
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                System.out.println(objectMapper.writeValueAsString(stack));
-                System.out.println(objectMapper.writeValueAsString(stackInfo));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-
-            throw new IllegalStateException("current stack is different. top : "
-                    + top.getClass().getName() + "(" + top.hashCode() + ")" + " / pop : "
-                    + stackInfo.getClass().getName() + "(" + stackInfo.hashCode() + ")");
+        if (top != stackInfo) {
+            System.out.println("// TODO Exception in StackManager.pop() : POP 대상이 실제와 다름.");
+            return;
         }
 
         stack.pop();
 
         postPop(stackInfo);
+    }
+
+    public static void popSql(SqlStackInfo sqlStackInfo) {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.popSql() : StackManager가 초기화 되어있지 않음.");
+            return;
+        }
+
+        Stack<SqlStackInfo> sqlStack = getSqlStack();
+        if (sqlStack.empty()) {
+            System.out.println("// TODO Exception in StackManager.popSql() : 스택이 비어있어서 POP 불가.");
+            return;
+        }
+
+        SqlStackInfo top = sqlStack.peek();
+        if (top != sqlStackInfo) {
+            System.out.println("// TODO Exception in StackManager.pop() : POP 대상이 실제와 다름.");
+            return;
+        }
+
+        sqlStack.pop();
+    }
+
+    public static SqlStackInfo peekSql() {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.peekSql() : StackManager가 초기화 되어있지 않음.");
+            return null;
+        }
+
+        Stack<SqlStackInfo> sqlStack = getSqlStack();
+        return sqlStack.peek();
+    }
+
+    public static void catchException(Exception e) {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.catchException() : StackManager가 초기화 되어있지 않음.");
+            return;
+        }
+
+        Stack<StackInfo> stack = getStack();
+
+        AbstractStackInfo top = (AbstractStackInfo) stack.peek();
+        top.setException(e);
+
+        popAllStackInfo();
+    }
+
+    private static Stack<StackInfo> getStack() {
+        if (threadStack == null) return null;
+        else return threadStack.get();
+    }
+
+    private static Stack<SqlStackInfo> getSqlStack() {
+        if (threadSqlStack == null) return null;
+        else return threadSqlStack.get();
     }
 
     private static void postPush(StackInfo stackInfo) {
@@ -105,43 +166,20 @@ public class StackManager {
     }
 
     private static void postPop(StackInfo stackInfo) {
-        StackInfo parent = peek();
-
-        if (parent == null) {
-            Writer writer = WriterFactory.getWriter();
-            writer.write(stackInfo);
-
-            getStack().clear();
-        }
-    }
-
-    public static void popSql(SqlStackInfo sqlStackInfo) {
-        Stack<SqlStackInfo> sqlStack = getSqlStack();
-        if (sqlStack.empty()) throw new IllegalStateException("sql stack is empty");
-
-        SqlStackInfo top = sqlStack.peek();
-        if (sqlStackInfo.hashCode() != top.hashCode()) {
-            // TODO Exception
-            throw new IllegalStateException("current sql stack is different. top : "
-                    + top.hashCode() + " / pop : " + sqlStackInfo.hashCode());
-        }
-
-        sqlStack.pop();
-    }
-
-    public static SqlStackInfo peekSql() {
-        Stack<SqlStackInfo> sqlStack = getSqlStack();
-        SqlStackInfo sqlStackInfo = null;
-
-        if (sqlStack.empty() == false) sqlStackInfo = sqlStack.peek();
-
-        return sqlStackInfo;
-    }
-
-    public static StackInfo peek() {
         Stack<StackInfo> stack = getStack();
 
-        if (stack.empty()) return null;
-        else return stack.peek();
+        if (stack.empty()) {
+            Writer writer = WriterFactory.getWriter();
+            writer.write(stackInfo);
+        }
+    }
+
+    private static void popAllStackInfo() {
+        Stack<StackInfo> stack = getStack();
+
+        while (stack.empty() == false) {
+            AbstractStackInfo top = (AbstractStackInfo) stack.peek();
+            pop(top);
+        }
     }
 }
