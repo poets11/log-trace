@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 /**
  * Created by poets11 on 15. 2. 5..
  */
-public class DefaultMarshaller {
-    private static ObjectMapper mapper = new ObjectMapper();
+public class JacksonMarshaller implements Marshaller {
+    private ObjectMapper mapper = new ObjectMapper();
 
-    static {
+    public JacksonMarshaller() {
         VisibilityChecker<?> visibilityChecker = mapper.getSerializationConfig().getDefaultVisibilityChecker();
         mapper.setVisibilityChecker(visibilityChecker
                 .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
@@ -21,8 +21,8 @@ public class DefaultMarshaller {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    public static StringObject marshall(Object obj, boolean useToString) {
-        if(obj == null) {
+    public StringObject marshall(Object obj, boolean useToString) {
+        if (obj == null) {
             MapperObject nullObj = new MapperObject();
             return nullObj;
         }
@@ -41,7 +41,8 @@ public class DefaultMarshaller {
         }
     }
 
-    public static StringObject marshall(Object obj) {
+    @Override
+    public StringObject marshall(Object obj) {
         return marshall(obj, false);
     }
 }

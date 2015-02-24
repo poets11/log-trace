@@ -1,7 +1,8 @@
 package fury.marvel.trinity.stack.info.impl;
 
 import fury.marvel.trinity.stack.info.PackageStackInfo;
-import fury.marvel.trinity.stack.info.marshall.DefaultMarshaller;
+import fury.marvel.trinity.stack.info.marshall.JacksonMarshaller;
+import fury.marvel.trinity.stack.info.marshall.MarshallerFactory;
 import fury.marvel.trinity.stack.info.marshall.StringObject;
 
 import java.util.ArrayList;
@@ -55,12 +56,12 @@ public class PackageStackInfoImpl extends AbstractStackInfo implements PackageSt
 
         params = new ArrayList<StringObject>();
         for (int i = 0; i < args.length; i++) {
-            params.add(DefaultMarshaller.marshall(args[i]));
+            params.add(MarshallerFactory.getMarshaller().marshall(args[i]));
         }
     }
 
     public void setResult(Object result) {
-        this.result = DefaultMarshaller.marshall(result);
+        this.result = MarshallerFactory.getMarshaller().marshall(result);
     }
 
     @Override

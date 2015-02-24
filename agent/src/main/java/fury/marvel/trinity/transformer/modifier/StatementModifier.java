@@ -1,33 +1,30 @@
 package fury.marvel.trinity.transformer.modifier;
 
-import fury.marvel.trinity.transformer.TargetMethod;
+import fury.marvel.trinity.reflect.Method;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
-import javassist.NotFoundException;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by poets11 on 15. 1. 29..
  */
 public class StatementModifier extends AbstractSqlModifier {
     public static final String JAVA_SQL_STATEMENT = "java.sql.Statement";
-    
-    protected TargetMethod executeMethodInStatement;
-    protected TargetMethod executeQueryMethodInStatement;
-    protected TargetMethod executeUpdateMethodInStatement;
+
+    protected Method executeMethodInStatement;
+    protected Method executeQueryMethodInStatement;
+    protected Method executeUpdateMethodInStatement;
 
     public StatementModifier() throws IOException {
         init();
     }
 
     private void init() throws IOException {
-        executeMethodInStatement        = new TargetMethod("execute", new String[]{"java.lang.String"});
-        executeQueryMethodInStatement   = new TargetMethod("executeQuery", new String[]{"java.lang.String"});
-        executeUpdateMethodInStatement  = new TargetMethod("executeUpdate", new String[]{"java.lang.String"});
+        executeMethodInStatement = new Method("execute", new String[]{"java.lang.String"});
+        executeQueryMethodInStatement = new Method("executeQuery", new String[]{"java.lang.String"});
+        executeUpdateMethodInStatement = new Method("executeUpdate", new String[]{"java.lang.String"});
     }
 
     @Override
@@ -40,20 +37,24 @@ public class StatementModifier extends AbstractSqlModifier {
         CtMethod[] methods = target.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             CtMethod method = methods[i];
-            
-            if(executeMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
-            else if(executeQueryMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
-            else if(executeUpdateMethodInStatement.isEqualCtMethod(method)) setTraceExecuteStatement(method);
+            if (isAbstract(method)) continue;
+
+            if (executeMethodInStatement.isEqualCtMethod(method)
+                    || executeQueryMethodInStatement.isEqualCtMethod(method)
+                    || executeUpdateMethodInStatement.isEqualCtMethod(method)) {
+                setTraceExecuteStatement(method);
+            }
         }
     }
 
     protected void setTraceExecuteStatement(CtMethod target) throws CannotCompileException {
         target.addLocalVariable(VAR_NAME, ctSqlStackInfo);
 
-        String beforeStatement = createStatementBlock(createInitVarStatement(SQL_STACK_INFO), SET_SQL, PUSH_MESSAGE);
+        String beforeStatement = createStatementBlock(INIT_VAR_NULL,
+                createStatementBlockWithStackManagerInit(createInitVarStatement(SQL_STACK_INFO), SET_SQL, PUSH_MESSAGE));
         target.insertBefore(beforeStatement);
 
-        String afterStatement = createStatementBlock(SET_RESULT, POP_MESSAGE);
+        String afterStatement = createStatementBlockWithStackManagerInit(SET_RESULT, POP_MESSAGE);
         target.insertAfter(afterStatement);
     }
 }

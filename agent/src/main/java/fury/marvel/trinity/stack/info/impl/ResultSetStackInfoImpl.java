@@ -1,7 +1,8 @@
 package fury.marvel.trinity.stack.info.impl;
 
 import fury.marvel.trinity.stack.info.ResultSetStackInfo;
-import fury.marvel.trinity.stack.info.marshall.DefaultMarshaller;
+import fury.marvel.trinity.stack.info.marshall.JacksonMarshaller;
+import fury.marvel.trinity.stack.info.marshall.MarshallerFactory;
 import fury.marvel.trinity.stack.info.marshall.StringObject;
 
 import java.sql.ResultSetMetaData;
@@ -53,7 +54,7 @@ public class ResultSetStackInfoImpl implements ResultSetStackInfo {
 
     public void addResultSetValue(String columnNam, Object value) {
         Map<String, StringObject> currentRow = datas.get(datas.size() - 1);
-        currentRow.put(columnNam, DefaultMarshaller.marshall(value));
+        currentRow.put(columnNam, MarshallerFactory.getMarshaller().marshall(value));
     }
 
     @Override

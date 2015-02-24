@@ -19,8 +19,10 @@ public class AgentMain {
             if(traceLevel.equals(TraceLevel.NONE) == false) {
                 inst.addTransformer(new Transformer(), true);
             } else {
-                System.out.println("__ trace level none");
+                System.out.println("// TODO TraceLevel in NONE");
             }
+
+            System.out.println("// TODO Agent Init Complete");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -25,11 +25,8 @@ public class Transformer implements ClassFileTransformer {
         modifiers = new ArrayList<ClassModifier>();
 
         try {
-//            modifiers.add(new AllClassModifier());
             modifiers.add(new HandlerAdapterModifier());
-            
             modifiers.add(new PackageModifier());
-            
             modifiers.add(new ConnectionModifier());
             modifiers.add(new StatementModifier());
             modifiers.add(new PreparedStatementModifier());
@@ -62,6 +59,7 @@ public class Transformer implements ClassFileTransformer {
                 return transformed;
             }
         } catch (Exception e) {
+            System.out.println("// TODO Exception in Transformer.doTransform(). " + className + " / " + e.getMessage());
             e.printStackTrace();
         } finally {
             if(target != null) target.detach();

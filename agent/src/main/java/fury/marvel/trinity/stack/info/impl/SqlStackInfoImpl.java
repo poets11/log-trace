@@ -3,7 +3,8 @@ package fury.marvel.trinity.stack.info.impl;
 
 import fury.marvel.trinity.stack.info.ResultSetStackInfo;
 import fury.marvel.trinity.stack.info.SqlStackInfo;
-import fury.marvel.trinity.stack.info.marshall.DefaultMarshaller;
+import fury.marvel.trinity.stack.info.marshall.JacksonMarshaller;
+import fury.marvel.trinity.stack.info.marshall.MarshallerFactory;
 import fury.marvel.trinity.stack.info.marshall.StringObject;
 
 import java.util.ArrayList;
@@ -45,15 +46,15 @@ public class SqlStackInfoImpl extends AbstractStackInfo implements SqlStackInfo 
     public void addParam(Object object) {
         if (params == null) params = new ArrayList<StringObject>();
 
-        params.add(DefaultMarshaller.marshall(object));
+        params.add(MarshallerFactory.getMarshaller().marshall(object));
     }
 
     public void setResult(Object result) {
         if (result != null && result instanceof java.sql.ResultSet) {
-            this.result = DefaultMarshaller.marshall(result, true);
+            this.result = MarshallerFactory.getMarshaller().marshall(result, true);
             initResultSet((java.sql.ResultSet) result);
         } else {
-            this.result = DefaultMarshaller.marshall(result);
+            this.result = MarshallerFactory.getMarshaller().marshall(result);
         }
     }
 

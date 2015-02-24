@@ -1,6 +1,6 @@
 package fury.marvel.trinity.transformer.modifier;
 
-import fury.marvel.trinity.transformer.TargetMethod;
+import fury.marvel.trinity.reflect.Method;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -13,14 +13,14 @@ import java.io.IOException;
  */
 public class ConnectionModifier extends AbstractSqlModifier {
     protected static final String JAVA_SQL_CONNECTION = "java.sql.Connection";
-    protected TargetMethod preparStatementMethod;
+    protected Method preparStatementMethod;
 
     public ConnectionModifier() throws IOException {
         init();
     }
 
     private void init() throws IOException {
-        preparStatementMethod = new TargetMethod("prepareStatement", new String[]{"java.lang.String"});
+        preparStatementMethod = new Method("prepareStatement", new String[]{"java.lang.String"});
     }
 
     @Override
@@ -34,11 +34,12 @@ public class ConnectionModifier extends AbstractSqlModifier {
 
         for (int i = 0; i < methods.length; i++) {
             CtMethod method = methods[i];
+            if(isAbstract(method)) continue;
 
             if (preparStatementMethod.isEqualCtMethod(method)) {
                 method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
 
-                String beforeStatement = createStatementBlock(createInitVarStatement(SQL_STACK_INFO), SET_SQL, PUSH_MESSAGE);
+                String beforeStatement = createStatementBlockWithStackManagerInit(createInitVarStatement(SQL_STACK_INFO), SET_SQL, PUSH_MESSAGE);
                 method.insertBefore(beforeStatement);
             }
         }

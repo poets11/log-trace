@@ -1,7 +1,7 @@
 package fury.marvel.trinity.transformer.modifier;
 
+import fury.marvel.trinity.reflect.Method;
 import fury.marvel.trinity.stack.info.impl.RequestStackInfoImpl;
-import fury.marvel.trinity.transformer.TargetMethod;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
@@ -19,7 +19,7 @@ public class HandlerAdapterModifier extends AbstractClassModifier {
     protected static final String SET_REQUEST = VAR_NAME + ".setRequest($1);";
     protected static final String SET_MAV = VAR_NAME + ".setModelAndView(($w)$_);";
 
-    protected TargetMethod handleMethod;
+    protected Method handleMethod;
     protected CtClass ctRequestStackInfo;
     protected List<String> handlerAdapterClassNames;
 
@@ -30,14 +30,14 @@ public class HandlerAdapterModifier extends AbstractClassModifier {
     protected void init() throws IOException {
         ctRequestStackInfo = ctClassUtil.createCtClass(RequestStackInfoImpl.class);
 
-        handleMethod = new TargetMethod(HANDLE_METHOD, new String[]{
+        handleMethod = new Method(HANDLE_METHOD, new String[]{
                 "javax.servlet.http.HttpServletRequest",
                 "javax.servlet.http.HttpServletResponse",
                 "java.lang.Object"
         });
 
         handlerAdapterClassNames = Arrays.asList(new String[]{
-                "org/springframework/web/servlet/mvc/HttpRequestHandlerAdapter",
+//                "org/springframework/web/servlet/mvc/HttpRequestHandlerAdapter",      // ignore static resource request
                 "org/springframework/web/servlet/mvc/SimpleControllerHandlerAdapter",
                 "org/springframework/web/servlet/mvc/method/AbstractHandlerMethodAdapter"
         });
@@ -56,19 +56,27 @@ public class HandlerAdapterModifier extends AbstractClassModifier {
 
         ctMethod.addLocalVariable(VAR_NAME, ctRequestStackInfo);
 
-        String beforeStatement = createStatementBlock(createInitVarStatement(REQUEST_STACK_INFO), SET_REQUEST, PUSH_MESSAGE);
+        String beforeStatement = createStatementBlock(
+                STACK_MANAGER_INIT,
+                createInitVarStatement(REQUEST_STACK_INFO), SET_REQUEST, PUSH_MESSAGE);
         ctMethod.insertBefore(beforeStatement);
 
-        String afterStatement = createStatementBlock(SET_MAV, POP_MESSAGE);
+        String afterStatement = createStatementBlock(
+                createStatementBlock(SET_MAV, POP_MESSAGE),
+                STACK_MANAGER_CLEAR);
         ctMethod.insertAfter(afterStatement);
 
-        ctMethod.addCatch(createStatementBlock(EXCEPTION_CATCH_MESSAGE, "throw $e;"), ctException);
+        String catchStatement = createStatementBlock(EXCEPTION_CATCH_MESSAGE, STACK_MANAGER_CLEAR, "throw $e;");
+        ctMethod.addCatch(catchStatement, ctException);
     }
 
     protected CtMethod getHandleMethod(CtClass target) throws NotFoundException {
         CtMethod[] methods = target.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             CtMethod ctMethod = methods[i];
+
+            if (isAbstract(ctMethod)) continue;
+
             if (handleMethod.isEqualCtMethod(ctMethod)) return ctMethod;
         }
 

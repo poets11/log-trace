@@ -30,7 +30,7 @@ public class PackageModifier extends AbstractClassModifier {
         ignoreMethods = new ArrayList<String>();
         ignoreMethods.add("toString");
 
-        basePackage = AgentConfig.get(AgentConfig.PROP_BASE_PACKAGE);
+        basePackage = AgentConfig.get(AgentConfig.PROP_BASE_PACKAGE).replaceAll("[.]", "/");
         ctPackageStackInfo = ctClassUtil.createCtClass(PackageStackInfoImpl.class);
     }
 
@@ -43,6 +43,7 @@ public class PackageModifier extends AbstractClassModifier {
     protected void doModify(String className, CtClass target) throws Exception {
         for (CtMethod ctMethod : target.getDeclaredMethods()) {
             if (ignoreMethods.contains(ctMethod.getName())) continue;
+            else if(isAbstract(ctMethod)) continue;
             else setTraceMethodStack(className, ctMethod);
         }
 
@@ -54,21 +55,22 @@ public class PackageModifier extends AbstractClassModifier {
     protected void setTraceConstructorStack(String className, CtConstructor ctConstructor) throws Exception {
         ctConstructor.addLocalVariable(VAR_NAME, ctPackageStackInfo);
 
-        String beforeStatement = createStatementBlock(createInitVarStatement(PACKAGE_STACK_INFO), SET_PARAMS, PUSH_MESSAGE);
+        String beforeStatement = createStatementBlock(INIT_VAR_NULL,
+                createStatementBlockWithStackManagerInit(createInitVarStatement(PACKAGE_STACK_INFO), SET_PARAMS, PUSH_MESSAGE));
         ctConstructor.insertBefore(beforeStatement);
 
-        String afterStatement = createStatementBlock(POP_MESSAGE);
+        String afterStatement = createStatementBlockWithStackManagerInit(POP_MESSAGE);
         ctConstructor.insertAfter(afterStatement);
     }
 
     protected void setTraceMethodStack(String className, CtMethod ctMethod) throws Exception {
         ctMethod.addLocalVariable(VAR_NAME, ctPackageStackInfo);
 
-        String beforeStatement = createStatementBlock(createInitVarStatement(PACKAGE_STACK_INFO), SET_PARAMS, PUSH_MESSAGE);
+        String beforeStatement = createStatementBlock(INIT_VAR_NULL,
+                createStatementBlockWithStackManagerInit(createInitVarStatement(PACKAGE_STACK_INFO), SET_PARAMS, PUSH_MESSAGE));
         ctMethod.insertBefore(beforeStatement);
 
-        String afterStatement = createStatementBlock(SET_RESULT, POP_MESSAGE);
+        String afterStatement = createStatementBlockWithStackManagerInit(SET_RESULT, POP_MESSAGE);
         ctMethod.insertAfter(afterStatement);
-
     }
 }

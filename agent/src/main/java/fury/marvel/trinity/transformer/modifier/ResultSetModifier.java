@@ -1,7 +1,7 @@
 package fury.marvel.trinity.transformer.modifier;
 
+import fury.marvel.trinity.reflect.Method;
 import fury.marvel.trinity.stack.info.impl.ResultSetStackInfoImpl;
-import fury.marvel.trinity.transformer.TargetMethod;
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -28,7 +28,7 @@ public class ResultSetModifier extends AbstractSqlModifier {
     protected static final String JAVA_SQL_RESULT_SET = "java.sql.ResultSet";
 
     protected CtClass ctResultSetStackInfo;
-    protected List<TargetMethod> getters;
+    protected List<Method> getters;
 
     public ResultSetModifier() throws IOException {
         init();
@@ -37,13 +37,13 @@ public class ResultSetModifier extends AbstractSqlModifier {
     protected void init() throws IOException {
         ctResultSetStackInfo = ctClassUtil.createCtClass(ResultSetStackInfoImpl.class);
 
-        getters = new ArrayList<TargetMethod>();
-        getters.add(new TargetMethod("getInt", new String[]{"java.lang.String"}));
-        getters.add(new TargetMethod("getLong", new String[]{"java.lang.String"}));
-        getters.add(new TargetMethod("getFloat", new String[]{"java.lang.String"}));
-        getters.add(new TargetMethod("getDouble", new String[]{"java.lang.String"}));
-        getters.add(new TargetMethod("getDate", new String[]{"java.lang.String"}));
-        getters.add(new TargetMethod("getString", new String[]{"java.lang.String"}));
+        getters = new ArrayList<Method>();
+        getters.add(new Method("getInt", new String[]{"java.lang.String"}));
+        getters.add(new Method("getLong", new String[]{"java.lang.String"}));
+        getters.add(new Method("getFloat", new String[]{"java.lang.String"}));
+        getters.add(new Method("getDouble", new String[]{"java.lang.String"}));
+        getters.add(new Method("getDate", new String[]{"java.lang.String"}));
+        getters.add(new Method("getString", new String[]{"java.lang.String"}));
     }
 
     @Override
@@ -56,17 +56,17 @@ public class ResultSetModifier extends AbstractSqlModifier {
         CtMethod[] methods = target.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             CtMethod method = methods[i];
-            String methodName = method.getName();
+            if (isAbstract(method)) continue;
 
             for (int j = 0; j < getters.size(); j++) {
-                TargetMethod targetMethod = getters.get(j);
+                Method targetMethod = getters.get(j);
                 if (targetMethod.isEqualCtMethod(method)) {
                     setTraceGetMethod(method);
                     break;
                 }
             }
 
-            if (methodName.equals("next")) setTraceNextMethod(method);
+            if (method.getName().equals("next")) setTraceNextMethod(method);
         }
     }
 
@@ -74,7 +74,7 @@ public class ResultSetModifier extends AbstractSqlModifier {
         method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
         method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
 
-        String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
+        String afterStatement = createStatementBlockWithStackManagerInit(PEEK_SQL_MESSAGE,
                 INIT_SQL_VAR_STATEMENT, NEXT, POP_SQL_MESSAGE);
         method.insertAfter(afterStatement);
     }
@@ -83,7 +83,7 @@ public class ResultSetModifier extends AbstractSqlModifier {
         method.addLocalVariable(VAR_NAME, ctSqlStackInfo);
         method.addLocalVariable(SQL_VAR_NAME, ctResultSetStackInfo);
 
-        String afterStatement = createStatementBlock(PEEK_SQL_MESSAGE,
+        String afterStatement = createStatementBlockWithStackManagerInit(PEEK_SQL_MESSAGE,
                 INIT_SQL_VAR_STATEMENT, ADD_RESULT_SET_VALUE);
         method.insertAfter(afterStatement);
     }

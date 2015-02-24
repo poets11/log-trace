@@ -16,7 +16,6 @@ public class CtClassUtil {
     private static CtClassUtil classUtil = new CtClassUtil();
     
     private ClassPool classPool;
-    private List<String> loaders = new ArrayList<String>();
     private List<String> ignoreClassLoaders;
 
     public static CtClassUtil getInstance() { return classUtil; }
@@ -35,18 +34,8 @@ public class CtClassUtil {
     // org.hibernate.boot.registry.classloading.internal.ClassLoaderServiceImpl$TcclSafeAggregatedClassLoader]
    
     public CtClass createCtClass(ClassLoader loader, String className, byte[] classfileBuff) throws ClassNotFoundException, IOException, NotFoundException {
-//        String loaderName = loader.getClass().getName();
-//        if(loaders.contains(loaderName) == false) {
-//            if(notIgnoreTarget(loaderName) == false) {
-//                loaders.add(loaderName);
-//                classPool.appendClassPath(new LoaderClassPath(loader));
-//            }
-//        }
-
         classPool.insertClassPath(new LoaderClassPath(loader));
-        
-        CtClass ctClass = createCtClass(classfileBuff);
-        return ctClass;
+        return createCtClass(classfileBuff);
     }
 
     private boolean notIgnoreTarget(String loaderName) {

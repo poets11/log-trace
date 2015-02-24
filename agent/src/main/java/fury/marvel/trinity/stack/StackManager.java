@@ -47,13 +47,13 @@ public class StackManager {
             threadSqlStack = null;
         }
     }
-    
+
     public static int size() {
         if (isInitialized() == false) {
             System.out.println("// TODO Exception in StackManager.size() : StackManager가 초기화 되어있지 않음.");
             return 0;
         }
-        
+
         return getStack().size();
     }
 
@@ -101,6 +101,16 @@ public class StackManager {
         stack.pop();
 
         postPop(stackInfo);
+    }
+
+    public static StackInfo peek() {
+        if (isInitialized() == false) {
+            System.out.println("// TODO Exception in StackManager.peek() : StackManager가 초기화 되어있지 않음.");
+            return null;
+        }
+
+        Stack<StackInfo> sqlStack = getStack();
+        return sqlStack.peek();
     }
 
     public static void popSql(SqlStackInfo sqlStackInfo) {
