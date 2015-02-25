@@ -152,8 +152,10 @@ public class StackManager {
 
         Stack<StackInfo> stack = getStack();
 
-        AbstractStackInfo top = (AbstractStackInfo) stack.peek();
-        top.setException(e);
+        if(stack.empty() == false) {
+            AbstractStackInfo top = (AbstractStackInfo) stack.peek();
+            top.setException(e);
+        }
 
         popAllStackInfo();
     }

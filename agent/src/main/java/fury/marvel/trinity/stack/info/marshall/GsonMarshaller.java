@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 /**
  * Created by poets11 on 15. 2. 24..
  */
+@Deprecated
 public class GsonMarshaller implements Marshaller {
     private Gson gson;
 
@@ -14,14 +15,7 @@ public class GsonMarshaller implements Marshaller {
 
     @Override
     public StringObject marshall(Object obj) {
-//        MapperObject stringObject = new MapperObject();
-//        if (obj == null) return stringObject;
-//
-//        stringObject.setType(obj.getClass());
-//        stringObject.setValue(gson.toJson(obj));
-//        
-//        return stringObject;
-        return marshall(obj, true);
+        return marshall(obj, false);
     }
 
     @Override

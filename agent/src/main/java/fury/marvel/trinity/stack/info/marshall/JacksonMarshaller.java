@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 /**
  * Created by poets11 on 15. 2. 5..
  */
+@Deprecated
 public class JacksonMarshaller implements Marshaller {
     private ObjectMapper mapper = new ObjectMapper();
 

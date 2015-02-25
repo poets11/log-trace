@@ -23,7 +23,7 @@ public class ConsoleWriter implements Writer {
 
     public void doWrite(StackInfo stackInfo) {
         Converter converter = ConverterFactory.getConverter(stackInfo);
-        System.out.println(converter.convert(stackInfo));
+        System.out.print(converter.convert(stackInfo));
 
         List<StackInfo> childStack = stackInfo.getChildStack();
         if (childStack != null) {

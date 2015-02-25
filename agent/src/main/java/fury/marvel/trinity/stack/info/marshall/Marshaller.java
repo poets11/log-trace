@@ -6,5 +6,5 @@ package fury.marvel.trinity.stack.info.marshall;
 public interface Marshaller {
     StringObject marshall(Object object);
 
-    StringObject marshall(Object object, boolean uesToString);
+    StringObject marshall(Object object, boolean useToString);
 }

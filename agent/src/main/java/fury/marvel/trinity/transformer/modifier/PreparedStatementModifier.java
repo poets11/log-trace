@@ -38,8 +38,7 @@ public class PreparedStatementModifier extends AbstractSqlModifier {
         setters.add(new Method("setFloat", new String[]{"int", "float"}));
         setters.add(new Method("setDouble", new String[]{"int", "double"}));
         setters.add(new Method("setDate", new String[]{"int", "java.util.Date"}));
-        setters.add(new Method("setNull", new String[]{"int", "java.math.BigDecimal"}));
-        setters.add(new Method("setString", new String[]{"int", "java.math.BigDecimal"}));
+        setters.add(new Method("setString", new String[]{"int", "java.lang.String"}));
     }
 
     @Override

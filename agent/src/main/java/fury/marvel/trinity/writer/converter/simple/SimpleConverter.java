@@ -8,6 +8,10 @@ import fury.marvel.trinity.writer.converter.Converter;
  * Created by poets11 on 15. 2. 6..
  */
 public class SimpleConverter implements Converter {
+    protected final String lineNew = "%s\n";
+    protected final String lineTitle = "%s %s\n";
+    protected final String lineKeyValue = "%s %s : %s\n";
+
     protected String indentPrefix;
     protected String indentSuffix;
     
