@@ -69,6 +69,11 @@ public class SqlStackInfoImpl extends AbstractStackInfo implements SqlStackInfo 
 
     @Override
     public String toString() {
-        return "sql='" + sql + "'";
+        return "SqlStackInfoImpl{" +
+                "sql='" + sql + '\'' +
+                ", params=" + params +
+                ", result=" + result +
+                ", resultSet=" + resultSet +
+                "} " + super.toString();
     }
 }

@@ -105,6 +105,10 @@ public class AgentConfig {
     public static String get(String key) {
         return CONFIG.get(key);
     }
+    
+    public static void set(String key, String value) {
+        CONFIG.put(key, value);
+    }
 
     public static long getConditionTimeout() {
         return Long.valueOf(get(PROP_CONDITION_TIMEOUT));

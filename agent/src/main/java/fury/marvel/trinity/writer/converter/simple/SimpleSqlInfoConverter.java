@@ -13,6 +13,7 @@ import java.util.Map;
  */
 public class SimpleSqlInfoConverter extends SimpleConverter {
     private final String lineTitleMs = "%s %s - %sms\n";
+
     @Override
     public String convert(StackInfo stackInfo) {
         if (stackInfo == null) return "";
@@ -31,7 +32,7 @@ public class SimpleSqlInfoConverter extends SimpleConverter {
         }
 
         ResultSetStackInfo resultSetStackInfo = sqlStackInfo.getResultSetStackInfo();
-        if(resultSetStackInfo != null) {
+        if (resultSetStackInfo != null) {
             List<Map<String, StringObject>> datas = resultSetStackInfo.getDatas();
             builder.append(String.format(lineKeyValue, indentString, "ResultSet", datas));
         }

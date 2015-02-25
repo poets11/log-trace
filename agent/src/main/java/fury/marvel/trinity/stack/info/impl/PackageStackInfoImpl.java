@@ -66,6 +66,11 @@ public class PackageStackInfoImpl extends AbstractStackInfo implements PackageSt
 
     @Override
     public String toString() {
-        return className.substring(className.lastIndexOf(".") + 1) + "." + methodName + "()";
+        return "PackageStackInfoImpl{" +
+                "className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", params=" + params +
+                ", result=" + result +
+                "} " + super.toString();
     }
 }

@@ -17,9 +17,10 @@ public class SimpleRequestInfoConverter extends SimpleConverter {
     private final String lineThreadId = "%s ThreadId : %s, ElapsedTime : %sms\n";
 
     private SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd hh:mm:sss");
+
     @Override
     public String convert(StackInfo stackInfo) {
-        if(stackInfo == null) return "";
+        if (stackInfo == null) return "";
 
         RequestStackInfo reqStackInfo = (RequestStackInfo) stackInfo;
         StringBuilder builder = new StringBuilder();
@@ -29,7 +30,7 @@ public class SimpleRequestInfoConverter extends SimpleConverter {
         builder.append(String.format(lineThreadId, indentString, reqStackInfo.getThreadId(), reqStackInfo.getElapsedTime()));
 
         Map<String, String> headers = reqStackInfo.getHeaders();
-        if(headers != null) {
+        if (headers != null) {
             builder.append(String.format(lineNew, indentString));
             builder.append(String.format(lineTitle, indentString, "Headers"));
 
@@ -41,7 +42,7 @@ public class SimpleRequestInfoConverter extends SimpleConverter {
         }
 
         Map<String, List<String>> params = reqStackInfo.getParams();
-        if(params != null) {
+        if (params != null) {
             builder.append(String.format(lineNew, indentString));
             builder.append(String.format(lineTitle, indentString, "Params"));
 

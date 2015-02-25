@@ -59,6 +59,9 @@ public class ResultSetStackInfoImpl implements ResultSetStackInfo {
 
     @Override
     public String toString() {
-        return "columnNames=" + columnNames;
+        return "ResultSetStackInfoImpl{" +
+                "columnNames=" + columnNames +
+                ", datas=" + datas +
+                '}';
     }
 }

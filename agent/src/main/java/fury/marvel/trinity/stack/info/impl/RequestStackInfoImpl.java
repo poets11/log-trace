@@ -117,6 +117,13 @@ public class RequestStackInfoImpl extends AbstractStackInfo implements RequestSt
 
     @Override
     public String toString() {
-        return url + "(" + method + ")";
+        return "RequestStackInfoImpl{" +
+                "threadId=" + threadId +
+                ", url='" + url + '\'' +
+                ", method='" + method + '\'' +
+                ", headers=" + headers +
+                ", params=" + params +
+                ", models=" + models +
+                "} " + super.toString();
     }
 }

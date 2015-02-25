@@ -28,12 +28,12 @@ public class SimplePackageInfoConverter extends SimpleConverter {
         builder.append(String.format(lineClassName, indentString, className, methodName, packageStackInfo.getElapsedTime()));
 
         List<StringObject> params = packageStackInfo.getParams();
-        if(params != null && params.size() > 0) {
+        if (params != null && params.size() > 0) {
             builder.append(String.format(lineKeyValue, indentString, "Params", params));
         }
 
         StringObject result = packageStackInfo.getResult();
-        if(result != null && result.getType() != null) {
+        if (result != null && result.getType() != null) {
             builder.append(String.format(lineKeyValue, indentString, "Return", result));
         }
 

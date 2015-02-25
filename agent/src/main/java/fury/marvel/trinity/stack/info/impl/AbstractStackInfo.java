@@ -112,4 +112,16 @@ public abstract class AbstractStackInfo implements StackInfo {
         
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "AbstractStackInfo{" +
+                "depth=" + depth +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", elapsedTime=" + elapsedTime +
+                ", childStack=" + childStack +
+                ", exception=" + exception +
+                '}';
+    }
 }
