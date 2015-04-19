@@ -125,4 +125,9 @@ public class AgentConfig {
     public static TraceLevel getTraceLevel() {
         return TraceLevel.valueOf(get(PROP_TRACE_LEVEL));
     }
+
+    @Override
+    public String toString() {
+        return "AgentConfig{ " + CONFIG + " }";
+    }
 }

@@ -18,11 +18,11 @@ public class AgentMain {
             TraceLevel traceLevel = AgentConfig.getTraceLevel();
             if(traceLevel.equals(TraceLevel.NONE) == false) {
                 inst.addTransformer(new Transformer(), true);
+                System.out.println("[Trinity] 설정 완료. 설정값 : " + new AgentConfig().toString());
             } else {
-                System.out.println("// TODO TraceLevel in NONE");
+                System.out.println("[Trinity] 설정 완료. Trace Level이 None으로 설정되어 Trace를 추적하지 않습니다.");
             }
 
-            System.out.println("// TODO Agent Init Complete");
         } catch (IOException e) {
             e.printStackTrace();
         }

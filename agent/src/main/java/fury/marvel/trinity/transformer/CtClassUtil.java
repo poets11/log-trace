@@ -14,15 +14,12 @@ import java.util.List;
  */
 public class CtClassUtil {
     private static CtClassUtil classUtil = new CtClassUtil();
-    
     private ClassPool classPool;
-    private List<String> ignoreClassLoaders;
 
     public static CtClassUtil getInstance() { return classUtil; }
-    
+
     public CtClassUtil() {
         classPool = ClassPool.getDefault();
-        ignoreClassLoaders = Arrays.asList(new String[]{"sun.", "java.", "javax."});
     }
 
     // sun.misc.Launcher$AppClassLoader, 
@@ -36,15 +33,6 @@ public class CtClassUtil {
     public CtClass createCtClass(ClassLoader loader, String className, byte[] classfileBuff) throws ClassNotFoundException, IOException, NotFoundException {
         classPool.insertClassPath(new LoaderClassPath(loader));
         return createCtClass(classfileBuff);
-    }
-
-    private boolean notIgnoreTarget(String loaderName) {
-        for (int i = 0; i < ignoreClassLoaders.size(); i++) {
-            String ignore = ignoreClassLoaders.get(i);
-            if(loaderName.startsWith(ignore) == true) return true;
-        }
-        
-        return false;
     }
 
     public CtClass createCtClass(byte[] classfileBuff) throws IOException {

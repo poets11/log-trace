@@ -44,6 +44,7 @@ public class StackManagerTest {
         assertEquals(0, StackManager.size());
 
         SqlStackInfoImpl sqlStackInfo = new SqlStackInfoImpl();
+        sqlStackInfo.setSql("select * from table");
         StackManager.push(sqlStackInfo);
         
         assertEquals(sqlStackInfo, StackManager.peekSql());

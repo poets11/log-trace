@@ -35,7 +35,7 @@ public class Method<T> {
         return paramTypeNames;
     }
 
-    public void setParamTypeNames(String[] paramTypeNames) {
+    public void setParamTypeNames(String ... paramTypeNames) {
         this.paramTypeNames = paramTypeNames;
     }
 

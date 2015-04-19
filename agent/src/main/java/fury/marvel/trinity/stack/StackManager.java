@@ -21,7 +21,8 @@ public class StackManager {
     }
 
     public static void init() {
-        System.out.println("// TODO StackManager.init()");
+        System.out.println("[Trinity] Request 요청 감지.");
+        System.out.println("[Trinity] Trace 추적 시작.");
 
         threadStack = new ThreadLocal<Stack<StackInfo>>();
         threadSqlStack = new ThreadLocal<Stack<SqlStackInfo>>();
@@ -31,7 +32,7 @@ public class StackManager {
     }
 
     public static void clear() {
-        System.out.println("// TODO StackManager.clear()");
+        System.out.println("[Trinity] Trace 추적 종료.");
 
         if (isInitialized()) {
             Stack<StackInfo> stack = getStack();
