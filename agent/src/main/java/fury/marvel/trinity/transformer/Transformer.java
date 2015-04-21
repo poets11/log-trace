@@ -9,11 +9,15 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by poets11 on 15. 1. 28..
  */
 public class Transformer implements ClassFileTransformer {
+    private Logger logger = Logger.getLogger(getClass().getName());
+    
     private CtClassUtil ctClassUtil = CtClassUtil.getInstance();
     private List<ClassModifier> modifiers;
 
@@ -31,16 +35,21 @@ public class Transformer implements ClassFileTransformer {
             modifiers.add(new StatementModifier());
             modifiers.add(new PreparedStatementModifier());
             modifiers.add(new ResultSetModifier());
-        } catch (IOException e) {
-            // TODO 두두두두두두두두두
-            e.printStackTrace();
+        } 
+        catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage());
         }
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (loader == null) return classfileBuffer;
-        else return doTransform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+        if (loader == null) {
+            return classfileBuffer;
+        }
+        else {
+            byte[] transform = doTransform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
+            return transform;
+        }
     }
 
     private byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
@@ -59,10 +68,11 @@ public class Transformer implements ClassFileTransformer {
                 return transformed;
             }
         } catch (Exception e) {
-            System.out.println("// TODO Exception in Transformer.doTransform(). " + className + " / " + e.getMessage());
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage());
         } finally {
-            if(target != null) target.detach();
+            if(target != null) {
+                target.detach();
+            }
         }
 
         return transformed;

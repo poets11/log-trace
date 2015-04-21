@@ -11,11 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by poets11 on 15. 2. 4..
  */
 public class ResultSetStackInfoImpl implements ResultSetStackInfo {
+    private Logger logger = Logger.getLogger(getClass().getName());
+    
     private List<String> columnNames;
     private List<Map<String, StringObject>> datas;
 
@@ -38,17 +42,22 @@ public class ResultSetStackInfoImpl implements ResultSetStackInfo {
             for (int i = 1; i <= count; i++) {
                 columnNames.add(metaData.getColumnLabel(i));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } 
+        catch (SQLException e) {
+            logger.log(Level.SEVERE, e.getMessage());
         }
     }
 
     public void next(boolean hasNext) {
-        if (hasNext == false) return;
+        if (hasNext == false) {
+            return;
+        }
 
-        if (datas == null) datas = new ArrayList<Map<String, StringObject>>();
+        if (datas == null) {
+            datas = new ArrayList<Map<String, StringObject>>();
+        }
 
-        HashMap<String, StringObject> row = new HashMap<String, StringObject>();
+        Map<String, StringObject> row = new HashMap<String, StringObject>();
         datas.add(row);
     }
 
