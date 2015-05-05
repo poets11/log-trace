@@ -1,11 +1,10 @@
 package fury.marvel.trinity.agent;
 
-import fury.marvel.trinity.stack.info.TraceLevel;
-import fury.marvel.trinity.transformer.Transformer;
+import fury.marvel.trinity.agent.bci.transformer.modifier.stack.info.TraceLevel;
+import fury.marvel.trinity.agent.bci.transformer.Transformer;
 
 import java.io.*;
 import java.lang.instrument.Instrumentation;
-import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

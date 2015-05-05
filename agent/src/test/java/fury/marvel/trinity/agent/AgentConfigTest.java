@@ -1,6 +1,6 @@
 package fury.marvel.trinity.agent;
 
-import fury.marvel.trinity.stack.info.TraceLevel;
+import fury.marvel.trinity.agent.bci.transformer.modifier.stack.info.TraceLevel;
 import org.junit.Test;
 
 import java.io.IOException;

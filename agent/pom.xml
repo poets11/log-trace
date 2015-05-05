@@ -38,6 +38,12 @@
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.10</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -50,7 +56,7 @@
                         <manifestEntries>
                             <premain-class>fury.marvel.trinity.agent.AgentMain</premain-class>
                             <can-retransform-classes>true</can-retransform-classes>
-                            <boot-class-path>javassist-3.18.1-GA.jar gson-2.3.1.jar</boot-class-path>
+                            <boot-class-path>javassist-3.19.0-GA.jar gson-2.3.1.jar</boot-class-path>
                         </manifestEntries>
                     </archive>
                 </configuration>

@@ -1,7 +1,7 @@
 package fury.marvel.trinity.agent;
 
 
-import fury.marvel.trinity.stack.info.TraceLevel;
+import fury.marvel.trinity.agent.bci.transformer.modifier.stack.info.TraceLevel;
 
 import java.io.File;
 import java.io.FileInputStream;
